@@ -1,0 +1,276 @@
+# DotGo Project .gitignore
+
+# ========================================
+# Dependencies
+# ========================================
+node_modules/
+.pnp
+.pnp.js
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# ========================================
+# Build Output
+# ========================================
+# Next.js
+.next/
+out/
+build/
+dist/
+
+# Rust/ink!
+target/
+Cargo.lock
+**/*.rs.bk
+*.so
+*.wasm
+*.contract
+*.json
+
+# Hardhat
+artifacts/
+cache/
+typechain/
+typechain-types/
+
+# ========================================
+# Environment & Secrets
+# ========================================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
+
+# Private keys & mnemonics
+*.pem
+*.key
+mnemonic.txt
+secrets/
+.secrets/
+
+# ========================================
+# IDE & Editors
+# ========================================
+# VSCode
+.vscode/
+*.code-workspace
+.history/
+
+# JetBrains (WebStorm, IntelliJ IDEA)
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# ========================================
+# Operating System Files
+# ========================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# ========================================
+# Testing & Coverage
+# ========================================
+coverage/
+.nyc_output/
+*.lcov
+.coverage
+htmlcov/
+junit.xml
+test-results/
+playwright-report/
+test-results.xml
+
+# ========================================
+# Logs
+# ========================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Runtime logs
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# ========================================
+# Temporary Files
+# ========================================
+tmp/
+temp/
+*.tmp
+*.temp
+*.cache
+
+# ========================================
+# Documentation Build
+# ========================================
+docs/_build/
+docs/.vitepress/cache
+docs/.vitepress/dist
+
+# ========================================
+# Deployment
+# ========================================
+.vercel
+.netlify
+
+# ========================================
+# Database & Local Data
+# ========================================
+*.sqlite
+*.sqlite3
+*.db
+*.db-shm
+*.db-wal
+data/
+*.dmp
+
+# ========================================
+# Blockchain & Web3 Specific
+# ========================================
+# Polkadot.js
+.polkadot/
+
+# Hardhat
+cache/
+artifacts/
+
+# Foundry
+out/
+cache_forge/
+
+# Local blockchain data
+.local-chain/
+.devnet/
+
+# IPFS
+.ipfs/
+
+# ========================================
+# Project Specific
+# ========================================
+# Contract deployment records
+deployments/local/
+deployments/dev/
+
+# Indexer data
+indexer/data/
+indexer/cache/
+
+# Generated ABIs
+abis/generated/
+
+# Backup files
+*.bak
+*.backup
+
+# ========================================
+# Misc
+# ========================================
+*.orig
+.sass-cache/
+connect.lock
+typings/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache
+.cache
+.parcel-cache
+
+# Next.js build info
+.next/
+
+# Nuxt.js build / generate output
+.nuxt
+
+# Gatsby files
+.cache/
+public
+
+# Storybook build
+storybook-static
+
+# Sentry
+.sentryclirc
+
+Sub0Polk/docs
+docs/DotGo.md
+docs/DUAL_TRACK_STRATEGY.md
