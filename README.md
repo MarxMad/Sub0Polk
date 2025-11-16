@@ -37,28 +37,280 @@ Students face a catch-22:
 
 ## 🏗️ Architecture
 
+### System Architecture Diagram
+
+```mermaid
+graph TB
+    subgraph "Frontend Layer"
+        UI[Next.js UI<br/>TypeScript + Tailwind]
+        WC[Wallet Connectors<br/>Polkadot.js + RainbowKit]
+    end
+
+    subgraph "Data Layer"
+        Arkiv[Arkiv DB<br/>Queryable Blockchain Data]
+        Indexer[Event Indexer<br/>Real-time Sync]
+    end
+
+    subgraph "Integration Layer"
+        ArkivSDK[Arkiv SDK<br/>JavaScript/TypeScript]
+        HyperbridgeSDK[Hyperbridge SDK<br/>Cross-chain Queries]
+        PolkadotJS[Polkadot.js API<br/>Contract Interactions]
+    end
+
+    subgraph "Blockchain Layer - Polkadot"
+        PolkadotSC[ink! Smart Contract<br/>DotGoPortfolio]
+        PolkadotEvents[Events: ProjectCreated<br/>ProjectUnlocked<br/>ReviewSubmitted]
+    end
+
+    subgraph "Blockchain Layer - Base L2"
+        BaseSC[Solidity Contract<br/>DotGoBase + Hyperbridge]
+        BaseEvents[Cross-chain Reputation<br/>Storage Queries]
+    end
+
+    subgraph "Blockchain Layer - Ethereum"
+        EthereumData[NFT Badges<br/>Attestations]
+    end
+
+    UI --> WC
+    UI --> ArkivSDK
+    UI --> HyperbridgeSDK
+    UI --> PolkadotJS
+
+    ArkivSDK --> Arkiv
+    Indexer --> Arkiv
+    PolkadotEvents --> Indexer
+
+    PolkadotJS --> PolkadotSC
+    PolkadotSC --> PolkadotEvents
+
+    HyperbridgeSDK --> BaseSC
+    BaseSC --> BaseEvents
+    BaseSC -.->|Storage Queries| EthereumData
+    BaseSC -.->|Reputation Sync| PolkadotSC
+
+    style UI fill:#e1f5ff
+    style Arkiv fill:#fff4e1
+    style PolkadotSC fill:#e3f2fd
+    style BaseSC fill:#f3e5f5
+    style HyperbridgeSDK fill:#fce4ec
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    DotGo Platform                        │
-├─────────────────────────────────────────────────────────┤
-│                                                          │
-│  ┌──────────────┐    ┌──────────────┐   ┌────────────┐ │
-│  │   Frontend   │───▶│   Arkiv DB   │───│ Hyperbridge│ │
-│  │  (Next.js)   │    │  (Queryable) │   │    SDK     │ │
-│  └──────┬───────┘    └──────┬───────┘   └─────┬──────┘ │
-│         │                   │                  │         │
-│         └───────────────────┴──────────────────┘         │
-│                             │                            │
-└─────────────────────────────┼────────────────────────────┘
-                              │
-        ┌─────────────────────┼─────────────────────┐
-        │                     │                     │
-   ┌────▼────┐         ┌──────▼──────┐      ┌──────▼──────┐
-   │Polkadot │         │  Ethereum   │      │    Base     │
-   │ ink! SC │◀────────│    EVM SC   │◀─────│   EVM SC    │
-   └─────────┘         └─────────────┘      └─────────────┘
-        │                     │                     │
-   Cross-chain Storage Queries via Hyperbridge GET requests
+
+### Multi-Chain Data Flow
+
+```mermaid
+sequenceDiagram
+    participant Student
+    participant Mentor
+    participant Frontend
+    participant Polkadot
+    participant Arkiv
+    participant Hyperbridge
+    participant Ethereum
+    participant Base
+
+    Note over Student,Base: Project Creation Flow
+    Student->>Frontend: Create Project
+    Frontend->>Polkadot: create_project(title, description, github, demo, skills)
+    Polkadot->>Polkadot: Store project data
+    Polkadot->>Arkiv: Emit ProjectCreated event
+    Arkiv->>Arkiv: Index project to DB
+    Polkadot-->>Frontend: Project ID
+    Frontend-->>Student: Project created ✓
+
+    Note over Student,Base: Discovery & Unlock Flow
+    Mentor->>Frontend: Search "React developers, 4+ rating"
+    Frontend->>Arkiv: SELECT * FROM projects WHERE 'React' = ANY(skills) AND avg_rating >= 4
+    Arkiv-->>Frontend: Matching projects
+    Frontend-->>Mentor: Project list (preview)
+
+    Mentor->>Frontend: Unlock project
+    Frontend->>Polkadot: unlock_project(project_id) + 3 DOT
+    Polkadot->>Polkadot: Transfer 2.5 DOT to Student
+    Polkadot->>Polkadot: Transfer 0.5 DOT to Platform
+    Polkadot->>Polkadot: Mark as unlocked
+    Polkadot->>Arkiv: Emit ProjectUnlocked event
+    Arkiv->>Arkiv: Update unlock_count
+    Polkadot-->>Frontend: Unlock success
+    Frontend-->>Mentor: Full project details
+
+    Note over Student,Base: Review & Reputation Flow
+    Mentor->>Frontend: Submit review (5 stars)
+    Frontend->>Polkadot: submit_review(project_id, 5, "Excellent work!")
+    Polkadot->>Polkadot: Verify unlock status
+    Polkadot->>Polkadot: Store review
+    Polkadot->>Polkadot: Update avg_rating
+    Polkadot->>Arkiv: Emit ReviewSubmitted event
+    Arkiv->>Arkiv: Index review + update analytics
+    Polkadot-->>Frontend: Review submitted ✓
+
+    Note over Student,Base: Cross-Chain Reputation Query
+    Mentor->>Frontend: View student's full reputation
+    Frontend->>Hyperbridge: Get cross-chain data
+    Hyperbridge->>Ethereum: Storage query: balanceOf(student) [NFT badges]
+    Ethereum-->>Hyperbridge: 5 NFT badges
+    Hyperbridge->>Base: Query GitHub attestations
+    Base-->>Hyperbridge: 142 commits verified
+    Hyperbridge->>Polkadot: Query reviews
+    Polkadot-->>Hyperbridge: 8 reviews, 4.5★ avg
+    Hyperbridge-->>Frontend: Aggregated reputation
+    Frontend-->>Mentor: Multi-chain reputation dashboard
+```
+
+### Arkiv Data Indexing Flow
+
+```mermaid
+flowchart LR
+    subgraph "Blockchain Events"
+        E1[ProjectCreated Event]
+        E2[ProjectUnlocked Event]
+        E3[ReviewSubmitted Event]
+    end
+
+    subgraph "Indexer Service"
+        Listener[Event Listener]
+        Parser[Event Parser]
+        Validator[Data Validator]
+    end
+
+    subgraph "Arkiv DB-Chain"
+        ProjectsTable[(Projects Table)]
+        ReviewsTable[(Reviews Table)]
+        Indexes[Indexes: skills, rating, timestamp]
+    end
+
+    subgraph "Query Layer"
+        SQL[SQL Interface]
+        API[REST API]
+        SDK[JavaScript SDK]
+    end
+
+    E1 --> Listener
+    E2 --> Listener
+    E3 --> Listener
+
+    Listener --> Parser
+    Parser --> Validator
+
+    Validator -->|INSERT| ProjectsTable
+    Validator -->|UPDATE| ProjectsTable
+    Validator -->|INSERT| ReviewsTable
+
+    ProjectsTable --> Indexes
+    ReviewsTable --> Indexes
+
+    Indexes --> SQL
+    Indexes --> API
+    Indexes --> SDK
+
+    SQL --> Frontend[Frontend Queries]
+    API --> Frontend
+    SDK --> Frontend
+
+    style ProjectsTable fill:#fff4e1
+    style ReviewsTable fill:#fff4e1
+    style Indexes fill:#ffe0b2
+    style Frontend fill:#e1f5ff
+```
+
+### Smart Contract State Machine
+
+```mermaid
+stateDiagram-v2
+    [*] --> ProjectCreated: Student creates project
+
+    ProjectCreated --> PreviewVisible: Anyone can see preview
+    PreviewVisible --> Unlocking: Mentor pays 3 DOT
+
+    Unlocking --> PaymentProcessing: Validate payment
+    PaymentProcessing --> StudentPaid: Transfer 2.5 DOT to student
+    StudentPaid --> PlatformPaid: Transfer 0.5 DOT to platform
+    PlatformPaid --> Unlocked: Mark as unlocked
+
+    Unlocked --> FullDetailsVisible: Mentor sees full details
+    FullDetailsVisible --> ReviewSubmission: Mentor submits review
+
+    ReviewSubmission --> ReviewValidation: Verify unlock status
+    ReviewValidation --> ReviewStored: Store review on-chain
+    ReviewStored --> RatingUpdated: Recalculate avg_rating
+    RatingUpdated --> ArkivIndexed: Emit event to Arkiv
+
+    ArkivIndexed --> SearchableData: Data queryable via SQL
+    SearchableData --> PreviewVisible: Available for discovery
+
+    note right of Unlocked
+        Cryptographic proof:
+        unlocked[project_id][mentor] = true
+    end note
+
+    note right of ReviewStored
+        Immutable review:
+        - Rating (1-5)
+        - Comment
+        - Timestamp
+        - Reviewer signature
+    end note
+```
+
+### Cross-Chain Reputation Aggregation
+
+```mermaid
+graph LR
+    subgraph "Student Credentials"
+        Student[Student Address<br/>0x123...abc]
+    end
+
+    subgraph "Polkadot Chain"
+        PR[Portfolio Reviews<br/>8 reviews, 4.5★ avg]
+        PP[Projects Created<br/>3 verified projects]
+    end
+
+    subgraph "Ethereum Chain"
+        NFT[NFT Badges<br/>5 achievement NFTs]
+        ENS[ENS Domain<br/>developer.eth]
+    end
+
+    subgraph "Base Chain"
+        GH[GitHub Attestations<br/>142 commits verified]
+        Skills[Skill Certifications<br/>React, Rust, Web3]
+    end
+
+    subgraph "Hyperbridge Query Engine"
+        Q1[Storage Query: Polkadot]
+        Q2[Storage Query: Ethereum]
+        Q3[Storage Query: Base]
+        Aggregator[Reputation Aggregator]
+    end
+
+    subgraph "Reputation Score"
+        Total[Total Score: 487/500]
+        Breakdown[Breakdown:<br/>Projects: 120<br/>Reviews: 180<br/>NFTs: 100<br/>Commits: 87]
+    end
+
+    Student --> PR
+    Student --> PP
+    Student --> NFT
+    Student --> ENS
+    Student --> GH
+    Student --> Skills
+
+    PR --> Q1
+    PP --> Q1
+    NFT --> Q2
+    ENS --> Q2
+    GH --> Q3
+    Skills --> Q3
+
+    Q1 --> Aggregator
+    Q2 --> Aggregator
+    Q3 --> Aggregator
+
+    Aggregator --> Total
+    Total --> Breakdown
+
+    style Student fill:#e1f5ff
+    style Aggregator fill:#fce4ec
+    style Total fill:#c8e6c9
+    style Breakdown fill:#dcedc8
 ```
 
 ### Tech Stack
