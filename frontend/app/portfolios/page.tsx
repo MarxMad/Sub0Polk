@@ -38,7 +38,7 @@ export default function PortfoliosPage() {
       <div className="space-y-4">
         <h1 className="text-4xl font-bold">Browse Portfolios</h1>
         <p className="text-lg text-muted-foreground">
-          Discover talented blockchain students and their projects. Pay 3 DOT to unlock full details.
+          Discover talented blockchain students and their projects. Pay 3 ETH to unlock full details.
         </p>
       </div>
 

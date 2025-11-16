@@ -11,13 +11,13 @@ export default function Home() {
       <section className="flex flex-col items-center justify-center px-4 py-20 md:py-32 bg-gradient-to-b from-background to-muted/20">
         <div className="container max-w-5xl text-center space-y-8">
           <Badge variant="outline" className="mb-4">
-            Built on Polkadot & Base • Cross-Chain Portfolio
+            Base Sepolia ↔ Ethereum Sepolia • Arkiv • Hyperbridge
           </Badge>
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
             Showcase Your Blockchain Projects
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto">
-            Student portfolio platform with pay-to-unlock model. 3 DOT to unlock, work together, leave verified reviews.
+            Student portfolio platform with pay-to-unlock model. 3 ETH to unlock full details, verified reviews, queryable reputation via Arkiv.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
             <Button asChild size="lg" className="text-lg">
@@ -39,11 +39,11 @@ export default function Home() {
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 mb-4">
                 <Shield className="h-6 w-6 text-primary" />
               </div>
-              <CardTitle>Cross-Chain Power</CardTitle>
+              <CardTitle>Arkiv Indexing</CardTitle>
             </CardHeader>
             <CardContent>
               <CardDescription>
-                Built on Polkadot ink! contracts and Base Solidity, connected via Hyperbridge for seamless cross-chain interaction.
+                All events indexed to Arkiv Mendoza for instant, queryable student data. Find React devs with 4+ stars in seconds.
               </CardDescription>
             </CardContent>
           </Card>
@@ -57,7 +57,7 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <CardDescription>
-                2.5 DOT goes directly to students, 0.5 DOT to platform. No escrow, no delays. Get paid when projects are unlocked.
+                2.5 ETH goes directly to students, 0.5 ETH to platform. No escrow, no delays. Get paid when projects are unlocked.
               </CardDescription>
             </CardContent>
           </Card>
@@ -67,11 +67,11 @@ export default function Home() {
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 mb-4">
                 <Lock className="h-6 w-6 text-primary" />
               </div>
-              <CardTitle>3 DOT to Unlock</CardTitle>
+              <CardTitle>3 ETH to Unlock</CardTitle>
             </CardHeader>
             <CardContent>
               <CardDescription>
-                Reviewers pay once to access project details, GitHub repos, and demos. Build trust through verified engagement.
+                Reviewers pay 3 ETH once to access full project details, GitHub repos, and demos. Hyperbridge syncs cross-chain.
               </CardDescription>
             </CardContent>
           </Card>
@@ -111,9 +111,9 @@ export default function Home() {
                 </p>
               </div>
               <div className="space-y-2">
-                <h3 className="text-xl font-semibold">Cross-Chain Native</h3>
+                <h3 className="text-xl font-semibold">Queryable Data</h3>
                 <p className="text-muted-foreground">
-                  Built on Polkadot and Base, bridged with Hyperbridge. True cross-chain portfolio platform.
+                  Arkiv integration enables instant queries: "Find React devs with 5★ rating in last 6 months". Hyperbridge ready for multi-chain expansion.
                 </p>
               </div>
             </div>
@@ -145,7 +145,7 @@ export default function Home() {
       <footer className="border-t mt-auto">
         <div className="container px-4 py-8 mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-            <p>© 2025 DotGo. Built for sub0 HACK on Polkadot + Base</p>
+            <p>© 2025 DotGo. Built for sub0 HACK Buenos Aires • Arkiv + Hyperbridge</p>
             <div className="flex gap-6">
               <Link href="#" className="hover:text-foreground transition-colors">Docs</Link>
               <Link href="#" className="hover:text-foreground transition-colors">GitHub</Link>
