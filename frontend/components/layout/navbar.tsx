@@ -14,7 +14,7 @@ export function Navbar() {
 
   const publicNavLinks: Array<{ href: string; label: string; badge?: string }> = [
     { href: "/portfolios", label: "Browse Portfolios" },
-    { href: "/arkiv-demo", label: "Arkiv Demo", badge: "$10k" },
+    { href: "/arkiv-demo", label: "Arkiv Demo", badge: "🏆" },
   ];
 
   const privateNavLinks: Array<{ href: string; label: string; badge?: string }> = [

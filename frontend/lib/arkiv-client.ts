@@ -7,10 +7,8 @@
  * Prize Track: Arkiv Main ($10k)
  */
 
-'use client';
-
-import { Arkiv } from '@arkiv-network/sdk';
-import { createWalletClient, http } from 'viem';
+import { createWalletClient } from '@arkiv-network/sdk';
+import { http } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 
 // Arkiv Mendoza Network Configuration
@@ -63,15 +61,12 @@ export async function createArkivClient() {
     // Create account from private key
     const account = privateKeyToAccount(privateKey as `0x${string}`);
 
-    // Create wallet client for Mendoza
-    const walletClient = createWalletClient({
+    // Create Arkiv wallet client for Mendoza
+    const arkivClient = createWalletClient({
       account,
       chain: ARKIV_MENDOZA_CHAIN,
       transport: http(ARKIV_MENDOZA_CHAIN.rpcUrls.default.http[0]),
     });
-
-    // Initialize Arkiv client
-    const arkivClient = new Arkiv({ walletClient });
 
     console.log('✅ Arkiv client initialized');
     console.log('  Network: Mendoza (Chain ID: 60138453056)');
