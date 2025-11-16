@@ -4,13 +4,16 @@ import Link from "next/link";
 import { useState } from "react";
 import { useAccount } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { PolkadotConnectButton } from "@/components/wallet/polkadot-connect-button";
+import { usePolkadot } from "@/components/providers/polkadot-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
-  const { isConnected } = useAccount();
+  const { isConnected: isEthConnected } = useAccount();
+  const { isConnected: isPolkadotConnected } = usePolkadot();
 
   const publicNavLinks = [
     { href: "/portfolios", label: "Browse Portfolios" },
@@ -21,6 +24,7 @@ export function Navbar() {
     { href: "/profile", label: "Profile" },
   ];
 
+  const isConnected = isEthConnected || isPolkadotConnected;
   const navLinks = isConnected
     ? [...publicNavLinks, ...privateNavLinks]
     : publicNavLinks;
@@ -55,6 +59,12 @@ export function Navbar() {
             Base + Polkadot
           </Badge>
 
+          {/* Polkadot Wallet Button */}
+          <div className="hidden md:block scale-90 md:scale-100">
+            <PolkadotConnectButton />
+          </div>
+
+          {/* Base/Ethereum Wallet Button */}
           <div className="scale-90 md:scale-100">
             <ConnectButton
               showBalance={{
