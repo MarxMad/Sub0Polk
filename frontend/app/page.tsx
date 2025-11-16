@@ -17,7 +17,7 @@ export default function Home() {
             Showcase Your Blockchain Projects
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto">
-            Student portfolio platform with pay-to-unlock model. 3 ETH to unlock full details, verified reviews, queryable reputation via Arkiv.
+            Student portfolio platform with pay-to-unlock model. $5 USDC to unlock full details, verified reviews, queryable reputation via Arkiv.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
             <Button asChild size="lg" className="text-lg">
@@ -57,7 +57,7 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <CardDescription>
-                2.5 ETH goes directly to students, 0.5 ETH to platform. No escrow, no delays. Get paid when projects are unlocked.
+                $4 USDC goes directly to students, $1 USDC to platform. No escrow, no delays. Get paid when projects are unlocked.
               </CardDescription>
             </CardContent>
           </Card>
@@ -67,11 +67,11 @@ export default function Home() {
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 mb-4">
                 <Lock className="h-6 w-6 text-primary" />
               </div>
-              <CardTitle>3 ETH to Unlock</CardTitle>
+              <CardTitle>$5 USDC to Unlock</CardTitle>
             </CardHeader>
             <CardContent>
               <CardDescription>
-                Reviewers pay 3 ETH once to access full project details, GitHub repos, and demos. Hyperbridge syncs cross-chain.
+                Reviewers pay $5 USDC once to access full project details, GitHub repos, and demos. Hyperbridge syncs cross-chain.
               </CardDescription>
             </CardContent>
           </Card>

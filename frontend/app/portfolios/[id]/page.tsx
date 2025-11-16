@@ -1,39 +1,94 @@
 "use client";
 
-import { useState } from "react";
-import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
-import { parseEther } from "viem";
+import React, { useState } from "react";
+import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract } from "wagmi";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { mockProjects, mockReviews } from "@/lib/mock-data";
 import { Github, ExternalLink, Lock, Unlock, Star, Calendar, User, Loader2 } from "lucide-react";
-import { CONTRACT_ADDRESS, CONTRACT_ABI } from "@/lib/contract";
+import { CONTRACT_ADDRESS, CONTRACT_ABI, USDC_ADDRESS, ERC20_ABI, UNLOCK_PRICE_USDC } from "@/lib/contract";
+import { baseSepolia } from "wagmi/chains";
 
 export default function PortfolioDetailPage({ params }: { params: { id: string } }) {
   const { id } = params;
-  const { isConnected, address } = useAccount();
-  const [isUnlocked, setIsUnlocked] = useState(false);
+  const { isConnected, address, chain } = useAccount();
+  const [step, setStep] = useState<'idle' | 'approving' | 'unlocking'>('idle');
 
   const { writeContract, data: hash, isPending } = useWriteContract();
-  const { isLoading: isConfirming } = useWaitForTransactionReceipt({ hash });
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
+
+  // Check if user has unlocked this project on-chain
+  const { data: hasUnlockedData } = useReadContract({
+    address: CONTRACT_ADDRESS,
+    abi: CONTRACT_ABI,
+    functionName: 'hasUnlocked',
+    args: address ? [BigInt(id), address] : undefined,
+    chainId: baseSepolia.id,
+  });
+
+  const isUnlocked = hasUnlockedData === true;
+
+  // Check USDC allowance
+  const { data: allowance, refetch: refetchAllowance } = useReadContract({
+    address: USDC_ADDRESS,
+    abi: ERC20_ABI,
+    functionName: 'allowance',
+    args: address ? [address, CONTRACT_ADDRESS] : undefined,
+    chainId: baseSepolia.id,
+  });
 
   const project = mockProjects.find((p) => p.id === id);
   const reviews = mockReviews[id] || [];
+
+  const needsApproval = allowance !== undefined && BigInt(allowance.toString()) < BigInt(UNLOCK_PRICE_USDC);
+
+  // Auto-refresh after successful transactions
+  React.useEffect(() => {
+    if (isConfirmed && step === 'approving') {
+      refetchAllowance();
+      setStep('idle');
+    }
+    if (isConfirmed && step === 'unlocking') {
+      setStep('idle');
+      // Refresh page to show unlocked content
+      window.location.reload();
+    }
+  }, [isConfirmed, step]);
+
+  const handleApprove = async () => {
+    if (!isConnected || !address) return;
+
+    try {
+      setStep('approving');
+      writeContract({
+        address: USDC_ADDRESS,
+        abi: ERC20_ABI,
+        functionName: "approve",
+        args: [CONTRACT_ADDRESS, BigInt(UNLOCK_PRICE_USDC)],
+        chainId: baseSepolia.id,
+      });
+    } catch (error) {
+      console.error("Error approving USDC:", error);
+      setStep('idle');
+    }
+  };
 
   const handleUnlock = async () => {
     if (!isConnected || !address) return;
 
     try {
+      setStep('unlocking');
       writeContract({
         address: CONTRACT_ADDRESS,
         abi: CONTRACT_ABI,
         functionName: "unlockProject",
         args: [BigInt(id)],
-        value: parseEther("3.0"), // 3 tokens
+        chainId: baseSepolia.id,
       });
     } catch (error) {
       console.error("Error unlocking project:", error);
+      setStep('idle');
     }
   };
 
@@ -89,38 +144,57 @@ export default function PortfolioDetailPage({ params }: { params: { id: string }
                 <span className="font-semibold">Locked Portfolio</span>
               </div>
               <p className="text-sm text-muted-foreground">
-                Pay 3 ETH to unlock full project details, GitHub repo, and demo.
+                Pay $5 USDC to unlock full project details, GitHub repo, and demo.
               </p>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">To Student:</span>
-                  <span className="font-medium">2.5 ETH</span>
+                  <span className="font-medium">$4 USDC</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Platform Fee:</span>
-                  <span className="font-medium">0.5 ETH</span>
+                  <span className="font-medium">$1 USDC</span>
                 </div>
                 <div className="pt-2 border-t flex justify-between font-semibold">
                   <span>Total:</span>
-                  <span>3.0 ETH</span>
+                  <span>$5 USDC</span>
                 </div>
               </div>
-              <Button
-                className="w-full"
-                disabled={!isConnected || isPending || isConfirming}
-                onClick={handleUnlock}
-              >
-                {isPending || isConfirming ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {isPending ? "Confirm in wallet..." : "Unlocking..."}
-                  </>
-                ) : isConnected ? (
-                  "Unlock Portfolio (3 ETH)"
-                ) : (
-                  "Connect Wallet"
-                )}
-              </Button>
+              {needsApproval ? (
+                <Button
+                  className="w-full"
+                  disabled={!isConnected || isPending || isConfirming}
+                  onClick={handleApprove}
+                >
+                  {step === 'approving' && (isPending || isConfirming) ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {isPending ? "Confirm approval..." : "Approving USDC..."}
+                    </>
+                  ) : isConnected ? (
+                    "1. Approve $5 USDC"
+                  ) : (
+                    "Connect Wallet"
+                  )}
+                </Button>
+              ) : (
+                <Button
+                  className="w-full"
+                  disabled={!isConnected || isPending || isConfirming}
+                  onClick={handleUnlock}
+                >
+                  {step === 'unlocking' && (isPending || isConfirming) ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {isPending ? "Confirm unlock..." : "Unlocking..."}
+                    </>
+                  ) : isConnected ? (
+                    "2. Unlock Portfolio ($5 USDC)"
+                  ) : (
+                    "Connect Wallet"
+                  )}
+                </Button>
+              )}
             </CardContent>
           </Card>
         )}

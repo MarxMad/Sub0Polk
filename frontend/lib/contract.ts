@@ -1,8 +1,18 @@
-// DotGoCrossChain contract with Hyperbridge integration
-export const CONTRACT_ADDRESS = "0xaCEab4Ef103b94DC22BD2e7A54901559d2d3B77A" as const;
+// DotGoUSDC contract addresses ($5 USDC unlock)
+export const CONTRACT_ADDRESS = "0xe08e46D72cCAB33F12D1643eA49D3Cb9CC8A0aF3" as const; // Base Sepolia
+export const CONTRACT_ADDRESS_SEPOLIA = "0xA4591Df423177c7db07Ebb97C9e579eCb62C48FE" as const; // Ethereum Sepolia
+
+// USDC token addresses
+export const USDC_ADDRESS = "0x036CbD53842c5426634e7929541eC2318f3dCF7e" as const; // Base Sepolia
+export const USDC_ADDRESS_SEPOLIA = "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238" as const; // Ethereum Sepolia
 
 // MockHyperbridge contract for cross-chain messaging
-export const HYPERBRIDGE_ADDRESS = "0x4bcCE8AeB801D27FE36Bb442F8d7216cC1304573" as const;
+export const HYPERBRIDGE_ADDRESS = "0x624cb3E65b30eB2A94AB10121e9bbf154B4fa4DE" as const;
+
+// Pricing (6 decimals for USDC)
+export const UNLOCK_PRICE_USDC = 5_000000; // $5 USDC
+export const STUDENT_SHARE_USDC = 4_000000; // $4 USDC
+export const PLATFORM_FEE_USDC = 1_000000; // $1 USDC
 
 export const CONTRACT_ABI = [
   {
@@ -496,6 +506,37 @@ export const CONTRACT_ABI = [
     "name": "updatePricing",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  }
+] as const;
+
+// ERC20 ABI for USDC approve/allowance
+export const ERC20_ABI = [
+  {
+    "inputs": [
+      { "internalType": "address", "name": "spender", "type": "address" },
+      { "internalType": "uint256", "name": "amount", "type": "uint256" }
+    ],
+    "name": "approve",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "owner", "type": "address" },
+      { "internalType": "address", "name": "spender", "type": "address" }
+    ],
+    "name": "allowance",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "account", "type": "address" }],
+    "name": "balanceOf",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
     "type": "function"
   }
 ] as const;
