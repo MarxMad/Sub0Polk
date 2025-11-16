@@ -297,6 +297,12 @@ mod dotgo_portfolio {
             let accounts = ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
             let mut contract = DotgoPortfolio::new(accounts.alice);
 
+            // Set initial balance for the contract to handle transfers
+            ink::env::test::set_account_balance::<ink::env::DefaultEnvironment>(
+                ink::env::account_id::<ink::env::DefaultEnvironment>(),
+                10_000_000_000_000,
+            );
+
             let project_id = contract.create_project(
                 String::from("My Portfolio"),
                 String::from("A cool project"),
@@ -305,8 +311,12 @@ mod dotgo_portfolio {
                 vec![String::from("Rust")],
             );
 
-            // Switch to Bob (reviewer)
+            // Switch to Bob (reviewer) and set his balance
             ink::env::test::set_caller::<ink::env::DefaultEnvironment>(accounts.bob);
+            ink::env::test::set_account_balance::<ink::env::DefaultEnvironment>(
+                accounts.bob,
+                10_000_000_000_000,
+            );
             ink::env::test::set_value_transferred::<ink::env::DefaultEnvironment>(3_000_000_000_000);
 
             let result = contract.unlock_project(project_id);
