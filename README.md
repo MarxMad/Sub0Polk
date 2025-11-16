@@ -27,8 +27,8 @@ Students face a catch-22:
 **Pay-to-Review + Cross-Chain Verification**
 
 1. Students create project portfolios (GitHub repos, demos, skills)
-2. Employers pay **3 ETH** to unlock project details
-3. Students receive **2.5 ETH** instantly (no escrow)
+2. Employers pay **$30 USDC** to unlock project details
+3. Students receive **$25 USDC** instantly (no escrow)
 4. Employers leave **cryptographically verified reviews**
 5. **Arkiv** makes portfolios queryable: "Find React devs with 5★ rating in last 6 months"
 6. **Hyperbridge** enables cross-chain messaging for multi-chain reputation aggregation
@@ -549,12 +549,24 @@ function unlockProjectWithSync(uint64 projectId) external payable {
 }
 ```
 
-**Deployment Status**:
-- **Contract**: `contracts/base/contracts/DotGoCrossChain.sol`
-- **Interface**: `contracts/base/contracts/interfaces/IHyperbridge.sol`
-- **Base Sepolia**: [0xaCEab4Ef103b94DC22BD2e7A54901559d2d3B77A](https://sepolia.basescan.org/address/0xaCEab4Ef103b94DC22BD2e7A54901559d2d3B77A)
-- **Ethereum Sepolia**: [0xa2F940b00946c95D9A3bDEd5b34787065b42ABe2](https://sepolia.etherscan.io/address/0xa2F940b00946c95D9A3bDEd5b34787065b42ABe2)
-- **Features**: 3 cross-chain message types, proof verification, bidirectional sync
+**Deployment Status** - **USDC Payment Version**:
+
+**Base Sepolia (Chain ID: 84532)**:
+- **DotGoUSDC Contract**: [0x198F83e1743a2B61473545AFF40D51d658E6aF9D](https://sepolia.basescan.org/address/0x198F83e1743a2B61473545AFF40D51d658E6aF9D)
+- **USDC Token**: [0x036CbD53842c5426634e7929541eC2318f3dCF7e](https://sepolia.basescan.org/address/0x036CbD53842c5426634e7929541eC2318f3dCF7e)
+- **MockHyperbridge**: 0x157f9f000BCC23Fd497E76C38EA340DcC97a3FEf
+
+**Ethereum Sepolia (Chain ID: 11155111)**:
+- **DotGoUSDC Contract**: [0xB625D88FB70D44C680410170B1b6BA0dc80721cf](https://sepolia.etherscan.io/address/0xB625D88FB70D44C680410170B1b6BA0dc80721cf)
+- **USDC Token**: [0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238](https://sepolia.etherscan.io/address/0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238)
+- **MockHyperbridge**: 0x5C36cFC25dce95976Ce947daaEA260b131776D2C
+
+**Pricing**:
+- Unlock Price: **$30 USDC** (30,000,000 with 6 decimals)
+- Student Share: **$25 USDC** (25,000,000 with 6 decimals)
+- Platform Fee: **$5 USDC** (5,000,000 with 6 decimals)
+
+**Features**: USDC payments, 3 cross-chain message types, proof verification, bidirectional sync
 
 ---
 
@@ -562,14 +574,14 @@ function unlockProjectWithSync(uint64 projectId) external payable {
 
 ### For Students
 - ✅ Create project portfolios (GitHub, demo, skills)
-- ✅ Earn 2.5 ETH per unlock (instant payment)
+- ✅ Earn $25 USDC per unlock (instant payment)
 - ✅ Build verifiable on-chain reputation
 - ✅ Cross-chain credential aggregation
 - ✅ Portable reputation across Web3
 
 ### For Mentors/Reviewers
 - ✅ Discover promising talent
-- ✅ Pay 3 ETH to unlock full project details
+- ✅ Pay $30 USDC to unlock full project details
 - ✅ Leave verified reviews (cryptographically proven)
 - ✅ Query portfolios via Arkiv (fast, time-scoped)
 - ✅ Verify cross-chain achievements via Hyperbridge
