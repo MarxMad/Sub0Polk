@@ -7,6 +7,26 @@
 
 ---
 
+## 📋 Hackathon Submission
+
+**Team:** Julio Cruz (Full-Stack Developer & Smart Contract Engineer)
+
+**Tracks:** Arkiv Main Track + Hyperbridge Bounty
+
+**Submission Materials:**
+- 🎥 **Pitch Video**: [TBD - Upload to YouTube]
+- 📊 **Pitch Deck**: [TBD - Upload to Google Slides/Canva]
+- 📹 **Demo Video**: [TBD - Upload to YouTube]
+- 🔗 **Live Demo**: http://localhost:3002 (Base Sepolia + Ethereum Sepolia)
+- 📦 **GitHub Repository**: [https://github.com/yourusername/Sub0Polk](https://github.com/yourusername/Sub0Polk)
+- 📝 **Milestone 2 Plan**: [MILESTONE-2-PLAN.md](./MILESTONE-2-PLAN.md)
+
+**Deployed Contracts:**
+- Base Sepolia DotGoUSDC: [0xe08e46D72cCAB33F12D1643eA49D3Cb9CC8A0aF3](https://sepolia.basescan.org/address/0xe08e46D72cCAB33F12D1643eA49D3Cb9CC8A0aF3)
+- Ethereum Sepolia DotGoUSDC: [0xA4591Df423177c7db07Ebb97C9e579eCb62C48FE](https://sepolia.etherscan.io/address/0xA4591Df423177c7db07Ebb97C9e579eCb62C48FE)
+
+---
+
 ## 🎯 Overview
 
 **DotGo** is a cross-chain portfolio platform where students and young professionals showcase real projects and earn **verified reviews from industry mentors**. Built for [sub0 HACK Buenos Aires](http://sl.sub0.gg/b8Qgr) targeting:
