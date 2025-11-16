@@ -9,7 +9,11 @@
 
 ## 📋 Hackathon Submission
 
-**Team:** Julio Cruz (Full-Stack Developer & Smart Contract Engineer)
+**Team:**
+- Julio Cruz - Full-Stack Developer & Smart Contract Engineer
+- Gerardo Vela - Full-Stack Developer
+- Fernanda Tello - Economist & Project Manager
+- Nayeli Chavez - Computer Engineer
 
 **Tracks:** Arkiv Main Track + Hyperbridge Bounty
 
@@ -739,6 +743,12 @@ npm start
 - **Total Prize Pool**: $15,000
 
 **Team**: DotGo
+- **Julio Cruz** - Full-Stack Developer & Smart Contract Engineer
+- **Gerardo Vela** - Full-Stack Developer
+- **Fernanda Tello** - Economist & Project Manager
+- **Nayeli Chavez** - Computer Engineer
+
+**Technical Stack**:
 - Smart Contracts & Backend: Solidity + Arkiv SDK + Hyperbridge
 - Frontend & Integration: Next.js + RainbowKit + Wagmi
 - Documentation: Complete technical specs + diagrams
