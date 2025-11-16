@@ -1,15 +1,25 @@
-// Network configuration
+// Network configuration - Using r0gue-io/polkadot-chains endpoints
 export const POLKADOT_NETWORKS = {
+  paseo: {
+    name: 'Paseo Asset Hub (Contracts)',
+    rpc: 'wss://testnet-passet-hub.polkadot.io',
+    fallbackRpc: 'wss://passet-hub-paseo.ibp.network',
+    chainId: 'paseo-asset-hub',
+    explorer: 'https://assethub-paseo.subscan.io/',
+  },
   westend: {
     name: 'Westend Asset Hub',
     rpc: 'wss://westend-asset-hub-rpc.polkadot.io',
+    fallbackRpc: 'wss://asset-hub-westend-rpc.n.dwellir.com',
     chainId: 'westend-asset-hub',
+    explorer: 'https://assethub-westend.subscan.io/',
   },
   rococo: {
     name: 'Contracts on Rococo',
     rpc: 'wss://rococo-contracts-rpc.polkadot.io',
     fallbackRpc: 'wss://rococo-contracts.api.onfinality.io/public-ws',
     chainId: 'rococo-contracts',
+    explorer: 'https://contracts-rococo.subscan.io/',
   },
   local: {
     name: 'Local Node',
@@ -18,8 +28,8 @@ export const POLKADOT_NETWORKS = {
   },
 };
 
-// Use Westend as default since Rococo Contracts RPC appears to be down
-export const DEFAULT_NETWORK = POLKADOT_NETWORKS.westend;
+// Use Paseo as default - dedicated contracts testnet from r0gue-io
+export const DEFAULT_NETWORK = POLKADOT_NETWORKS.paseo;
 
 // Contract configuration (update after deployment)
 export const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_POLKADOT_CONTRACT_ADDRESS || '';
