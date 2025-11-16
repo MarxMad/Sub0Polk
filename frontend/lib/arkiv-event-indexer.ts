@@ -7,8 +7,6 @@
  * Prize Track: Arkiv Main ($10k)
  */
 
-'use client';
-
 import { getArkivClient } from './arkiv-client';
 import { ExpirationTime, jsonToPayload, eq } from '@arkiv-network/sdk';
 

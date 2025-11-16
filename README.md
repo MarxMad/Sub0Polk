@@ -18,10 +18,9 @@
 **Tracks:** Arkiv Main Track + Hyperbridge Bounty
 
 **Submission Materials:**
-- 🎥 **Pitch Video**: [TBD - Upload to YouTube]
+- 🎥 **Demo Video**: [Watch on Loom](https://www.loom.com/share/fb30c9dbcbfb4404b6f0e7454bac3e30)
 - 📊 **Pitch Deck**: [https://gamma.app/docs/DotGo-yzsrom5xgm6m2dz](https://gamma.app/docs/DotGo-yzsrom5xgm6m2dz)
 - 📄 **Pitch PDF**: [Pitch/DotGo.pdf](./Pitch/DotGo.pdf)
-- 📹 **Demo Video**: [TBD - Upload to YouTube]
 - 🔗 **Live Demo**: http://localhost:3002 (Base Sepolia + Ethereum Sepolia)
 - 📦 **GitHub Repository**: [https://github.com/MarxMad/Sub0Polk](https://github.com/MarxMad/Sub0Polk)
 - 📝 **Milestone 2 Plan**: [MILESTONE-2-PLAN.md](./MILESTONE-2-PLAN.md)

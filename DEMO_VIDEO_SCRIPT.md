@@ -6,33 +6,45 @@
 
 ---
 
-## Scene 1: Opening Hook (0:00 - 0:15)
+## Scene 1: Introduction - What is DotGo? (0:00 - 0:20)
 
-**[SCREEN: DotGo homepage with hero section]**
+**[SCREEN: Open http://localhost:3000 - DotGo homepage with hero section]**
 
 **Voiceover:**
-> "Imagine you're a self-taught developer. You've built amazing projects, but employers don't trust your portfolio. What if you could earn money from verified reviews that prove your skills are real?"
+> "Hi, I'm presenting DotGo - a proof-of-work portfolio platform where students and young developers earn USDC by showcasing real projects, and companies discover verified talent through on-chain reputation."
 
 **[SCREEN: Highlight tagline "Where Young Talent Meets Opportunity"]**
 
-> "This is DotGo - a cross-chain platform where students earn USDC from verified reviews."
+> "Built for sub0 HACK Buenos Aires, DotGo solves a critical problem: 73% of developers say traditional credentials don't prove their real skills. Self-taught developers with amazing GitHub projects get dismissed for lack of degrees or experience."
+
+**[SCREEN: Show tech stack badges: Next.js, Solidity, Arkiv, Hyperbridge]**
+
+> "We're leveraging Polkadot ecosystem technologies - specifically Arkiv for queryable blockchain data and Hyperbridge for cross-chain reputation - to create something traditional platforms can't: truly portable, verifiable professional identity."
 
 ---
 
-## Scene 2: The Problem (0:15 - 0:30)
+## Scene 2: How Polkadot Tech Makes the Difference (0:20 - 0:40)
 
-**[SCREEN: Show LinkedIn profile screenshot with question marks]**
+**[SCREEN: Split screen showing traditional platforms vs DotGo]**
 
 **Voiceover:**
-> "Today's students face a catch-22: you need experience to get experience. Portfolio projects lack credibility. And your reputation is fragmented across different blockchains."
+> "Traditional platforms like LinkedIn have three problems: First, anyone can fake their skills. Second, your reputation is locked to one platform. Third, there's no way to monetize your work as a student."
 
-**[SCREEN: Split screen showing GitHub on Ethereum, NFT badges on Base, attestations on Polygon]**
+**[SCREEN: Show Arkiv logo and blockchain event indexing diagram]**
 
-> "Your achievements are scattered across chains with no unified view. DotGo solves this."
+> "Arkiv Mendoza - our first Polkadot technology - solves talent discovery. Instead of scanning millions of blockchain transactions taking hours, Arkiv indexes events into a queryable database. Employers find 'React developers with 4-star reviews' in under 100 milliseconds."
+
+**[SCREEN: Show Hyperbridge logo and cross-chain message flow]**
+
+> "Hyperbridge - our second Polkadot technology - enables cross-chain reputation. Your portfolio reviews on Base, NFT badges on Ethereum, GitHub attestations on Polygon, DAO contributions on Polkadot - all aggregated into one verifiable identity using cryptographic state proofs."
+
+**[SCREEN: Show comparison: Traditional = Siloed, DotGo = Unified]**
+
+> "For young professionals, this means your reputation follows you everywhere. No platform lock-in. No starting from zero when switching chains. True Web3 portability powered by Polkadot's cross-chain vision."
 
 ---
 
-## Scene 3: The Solution Overview (0:30 - 0:50)
+## Scene 3: The Solution Overview (0:55 - 1:10)
 
 **[SCREEN: Navigate to /portfolios page showing project cards]**
 
@@ -49,7 +61,7 @@
 
 ---
 
-## Scene 4: Live Demo - Wallet Connection (0:50 - 1:10)
+## Scene 4: Live Demo - Wallet Connection (1:10 - 1:30)
 
 **[SCREEN: Click "Connect Wallet" button in navbar]**
 
@@ -58,95 +70,102 @@
 
 **[SCREEN: RainbowKit modal appears, select MetaMask]**
 
-> "We're using RainbowKit for multi-chain wallet support."
+> "We're using RainbowKit - an open-source library that provides a beautiful wallet connection UI. Under the hood, it's built on wagmi hooks and viem for type-safe Ethereum interactions."
 
 **[SCREEN: Wallet connects, navbar shows address 0x123...abc]**
 
-> "Connected. Now I can interact with the smart contracts on Base Sepolia."
+> "Connected to Base Sepolia - an Ethereum Layer 2 network with low gas fees. Our frontend uses wagmi's useAccount hook to track connection state and useWriteContract for transaction signing."
 
-**[SCREEN: Show Base Sepolia network indicator in MetaMask]**
+**[SCREEN: Show Base Sepolia network indicator in MetaMask, highlight Chain ID: 84532]**
 
 ---
 
-## Scene 5: Live Demo - USDC Approval (1:10 - 1:30)
+## Scene 5: Live Demo - USDC Approval (1:30 - 1:50)
 
 **[SCREEN: On /portfolios/1, click "Approve 5 USDC" button]**
 
 **Voiceover:**
-> "To unlock a project, we use a two-step ERC20 flow. First, I approve the contract to spend 5 USDC from my wallet."
+> "To unlock a project, we use the standard ERC20 two-step pattern. First, I approve the contract to spend 5 USDC from my wallet."
 
 **[SCREEN: MetaMask confirmation popup appears]**
 
-> "This is the standard approve function - we're giving the DotGoUSDC contract permission to transfer USDC on our behalf."
+> "This calls USDC.approve() - giving our DotGoUSDC smart contract at address 0xe08...0aF3 permission to spend exactly 5 USDC. Notice USDC uses 6 decimals, not 18, so 5 dollars equals 5 million in the contract."
 
-**[SCREEN: Confirm transaction in MetaMask]**
+**[SCREEN: Confirm transaction in MetaMask, show gas fee]**
 
 **[SCREEN: Loading spinner while transaction confirms]**
 
-> "Transaction confirmed on Base Sepolia."
+> "Transaction confirmed. Our frontend uses wagmi's useWaitForTransactionReceipt hook to wait for blockchain confirmation, then calls refetchAllowance to update the UI state."
 
 **[SCREEN: Button changes to "Unlock Project for 5 USDC"]**
 
 ---
 
-## Scene 6: Live Demo - Unlock Project (1:30 - 1:50)
+## Scene 6: Live Demo - Unlock Project (1:50 - 2:10)
 
 **[SCREEN: Click "Unlock Project for 5 USDC" button]**
 
 **Voiceover:**
-> "Now I can unlock the project. This calls the unlockProject function, which transfers 4 USDC to the student and 1 USDC to the platform."
+> "Now I unlock the project. This calls our Solidity function unlockProject() which executes two USDC.transferFrom() calls - 4 million to the student, 1 million to the platform."
 
 **[SCREEN: MetaMask confirmation popup for unlockProject]**
 
-**[SCREEN: Confirm transaction]**
+**[SCREEN: Confirm transaction, show function signature and gas estimate]**
 
 **[SCREEN: Loading state with "Unlocking project..."]**
 
-> "The transaction is processing. Under the hood, the smart contract is transferring USDC using the ERC20 transferFrom function and marking this project as unlocked for my address."
+> "The smart contract verifies the allowance, executes the transfers, updates the unlocked mapping to mark this portfolio as unlocked for my address, and emits a ProjectUnlocked event."
 
 **[SCREEN: Page refreshes, full project details appear]**
 
-> "Success! I can now see the full GitHub repository URL, the live demo link, and all verified reviews."
+> "Success! The page auto-refreshes using window.location.reload() after transaction confirmation. Our useReadContract hook now fetches hasUnlocked equals true from the blockchain, revealing the full project details."
 
 **[SCREEN: Scroll to show GitHub link, demo link, reviews section]**
 
 ---
 
-## Scene 7: Arkiv Integration (1:50 - 2:10)
+## Scene 7: Arkiv Integration (2:10 - 2:30)
 
 **[SCREEN: Open new tab, show backend terminal with event logs]**
 
 **Voiceover:**
-> "Behind the scenes, this unlock event was instantly indexed to Arkiv Mendoza - a queryable blockchain database."
+> "Behind the scenes, our Node.js backend is listening for events using ethers.js. The moment that ProjectUnlocked event was emitted, it was indexed to Arkiv Mendoza - chain ID 60138453056."
 
-**[SCREEN: Show Arkiv SDK code snippet]**
+**[SCREEN: Show Arkiv SDK code snippet from backend/src/index.js]**
 
-> "Employers can now query portfolios using SQL-like syntax: 'Find React developers with 4-plus star ratings in the last 6 months.'"
+```typescript
+const query = await arkiv
+  .where(eq('skill', 'React'))
+  .where(gte('rating', '4'))
+  .fetch();
+```
 
-**[SCREEN: Show example Arkiv query result]**
+> "Arkiv transforms blockchain events into a queryable database. Employers can use SQL-like syntax: 'Find React developers with 4-plus star ratings.' We're using the official Arkiv SDK version 0.4.5 with eq, gte, and array filtering operators."
 
-> "This takes less than 100 milliseconds - compared to hours scanning the blockchain directly. That's the power of Arkiv."
+**[SCREEN: Show example query taking <100ms]**
+
+> "This query completes in under 100 milliseconds - compared to hours scanning millions of blocks directly. Arkiv makes talent discovery instant."
 
 ---
 
-## Scene 8: Hyperbridge Integration (2:10 - 2:30)
+## Scene 8: Hyperbridge Integration (2:30 - 2:50)
 
 **[SCREEN: Switch MetaMask network to Ethereum Sepolia]**
 
 **Voiceover:**
-> "Now let's talk cross-chain. DotGo uses Hyperbridge to sync reputation across chains."
+> "Now let's talk cross-chain reputation. DotGo uses Hyperbridge - a Polkadot ecosystem protocol for secure cross-chain messaging with cryptographic state proofs."
 
-**[SCREEN: Show Ethereum Sepolia contract on Etherscan]**
+**[SCREEN: Show Ethereum Sepolia contract on Etherscan: 0xA45...48FE]**
 
-> "This unlock event was automatically synced from Base Sepolia to Ethereum Sepolia via Hyperbridge cross-chain messaging."
+> "When I unlocked that portfolio on Base Sepolia, our smart contract called Hyperbridge's dispatch function to sync the event to Ethereum Sepolia. The message includes portfolio ID, unlock count, and reviewer address."
 
 **[SCREEN: Show cross-chain reputation dashboard mockup/diagram]**
 
-> "Students can aggregate achievements from multiple chains: portfolio reviews on Base, NFT badges on Ethereum, GitHub attestations anywhere."
+> "Why does this matter? Students can now aggregate achievements across the entire Web3 ecosystem: portfolio reviews on Base, NFT badges on Ethereum, GitHub attestations on Polygon, DAO contributions on Polkadot."
 
-**[SCREEN: Show Hyperbridge message verification]**
+**[SCREEN: Show Hyperbridge message verification with merkle proof]**
 
-> "All messages are cryptographically verified - ensuring trust across chains."
+> "Hyperbridge verifies every message using consensus proofs and merkle trees - no trusted intermediaries, just cryptography. This is how Polkadot's cross-chain vision enables truly portable reputation for young professionals."
 
 ---
 

@@ -11,20 +11,6 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import {
-  testArkivConnection,
-  getArkivClient,
-} from '@/lib/arkiv-client';
-import {
-  indexProjectCreated,
-  indexProjectUnlocked,
-  indexReviewSubmitted,
-  queryEvents,
-  getStudentAnalytics,
-  type ProjectCreatedEvent,
-  type ProjectUnlockedEvent,
-  type ReviewSubmittedEvent,
-} from '@/lib/arkiv-event-indexer';
 
 export default function ArkivDemoPage() {
   const [isConnected, setIsConnected] = useState(false);
@@ -36,29 +22,42 @@ export default function ArkivDemoPage() {
   const [liveReviewCount, setLiveReviewCount] = useState(0);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
 
-  // Real-time data refresh (every 15 seconds like learn-arkiv)
+  // Real-time data refresh (every 15 seconds)
   useEffect(() => {
     const updateLiveStats = async () => {
       try {
-        const [projects, reviews] = await Promise.all([
-          queryEvents({ eventType: 'ProjectCreated', limit: 100 }),
-          queryEvents({ eventType: 'ReviewSubmitted', limit: 100 }),
+        const [projectsRes, reviewsRes] = await Promise.all([
+          fetch('/api/arkiv/query', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'queryEvents',
+              filters: { eventType: 'ProjectCreated', limit: 100 }
+            })
+          }),
+          fetch('/api/arkiv/query', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'queryEvents',
+              filters: { eventType: 'ReviewSubmitted', limit: 100 }
+            })
+          }),
         ]);
 
-        setLiveProjectCount(projects.length);
-        setLiveReviewCount(reviews.length);
+        const projects = await projectsRes.json();
+        const reviews = await reviewsRes.json();
+
+        setLiveProjectCount(projects.data?.length || 0);
+        setLiveReviewCount(reviews.data?.length || 0);
         setLastUpdate(new Date());
       } catch (error) {
         console.error('Failed to update live stats:', error);
       }
     };
 
-    // Initial load
     updateLiveStats();
-
-    // Refresh every 15 seconds
     const interval = setInterval(updateLiveStats, 15000);
-
     return () => clearInterval(interval);
   }, []);
 
@@ -66,12 +65,14 @@ export default function ArkivDemoPage() {
   const handleTestConnection = async () => {
     setIsConnecting(true);
     try {
-      const connected = await testArkivConnection();
-      setIsConnected(connected);
-      if (connected) {
+      const res = await fetch('/api/arkiv/test-connection');
+      const data = await res.json();
+
+      setIsConnected(data.success);
+      if (data.success) {
         alert('✅ Connected to Arkiv Mendoza successfully!');
       } else {
-        alert('❌ Failed to connect. Check console for details.');
+        alert(`❌ Failed: ${data.error}`);
       }
     } catch (error) {
       console.error(error);
@@ -83,15 +84,15 @@ export default function ArkivDemoPage() {
 
   // Index a sample project
   const handleIndexProject = async () => {
-    const sampleProject: ProjectCreatedEvent = {
+    const sampleProject = {
       eventType: 'ProjectCreated',
       projectId: `demo-${Date.now()}`,
       student: studentAddress || '0x1234567890123456789012345678901234567890',
       title: 'DeFi Analytics Dashboard',
-      description: 'Real-time DeFi protocol analytics and portfolio tracking',
+      description: 'Real-time DeFi protocol analytics',
       githubUrl: 'https://github.com/example/defi-analytics',
       demoUrl: 'https://defi-analytics-demo.vercel.app',
-      skills: ['Solidity', 'React', 'TypeScript', 'The Graph', 'Hardhat'],
+      skills: ['Solidity', 'React', 'TypeScript', 'The Graph'],
       timestamp: Date.now(),
       chain: 'polkadot',
       txHash: `0x${Math.random().toString(16).substring(2)}`,
@@ -99,8 +100,21 @@ export default function ArkivDemoPage() {
     };
 
     try {
-      await indexProjectCreated(sampleProject);
-      alert('✅ Project indexed successfully!');
+      const res = await fetch('/api/arkiv/index-event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          eventType: 'ProjectCreated',
+          eventData: sampleProject
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        alert('✅ Project indexed successfully!');
+      } else {
+        alert(`❌ Failed: ${data.error}`);
+      }
     } catch (error) {
       console.error(error);
       alert('❌ Failed to index project');
@@ -109,20 +123,33 @@ export default function ArkivDemoPage() {
 
   // Index a sample unlock
   const handleIndexUnlock = async () => {
-    const sampleUnlock: ProjectUnlockedEvent = {
+    const sampleUnlock = {
       eventType: 'ProjectUnlocked',
       projectId: '1',
       reviewer: '0x9876543210987654321098765432109876543210',
       student: studentAddress || '0x1234567890123456789012345678901234567890',
-      amount: '3000000000000000000', // 3 DOT
+      amount: '3000000000000000000',
       timestamp: Date.now(),
       chain: 'polkadot',
       txHash: `0x${Math.random().toString(16).substring(2)}`,
     };
 
     try {
-      await indexProjectUnlocked(sampleUnlock);
-      alert('✅ Unlock indexed successfully!');
+      const res = await fetch('/api/arkiv/index-event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          eventType: 'ProjectUnlocked',
+          eventData: sampleUnlock
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        alert('✅ Unlock indexed successfully!');
+      } else {
+        alert(`❌ Failed: ${data.error}`);
+      }
     } catch (error) {
       console.error(error);
       alert('❌ Failed to index unlock');
@@ -131,7 +158,7 @@ export default function ArkivDemoPage() {
 
   // Index a sample review
   const handleIndexReview = async () => {
-    const sampleReview: ReviewSubmittedEvent = {
+    const sampleReview = {
       eventType: 'ReviewSubmitted',
       projectId: '1',
       reviewer: '0x9876543210987654321098765432109876543210',
@@ -143,8 +170,21 @@ export default function ArkivDemoPage() {
     };
 
     try {
-      await indexReviewSubmitted(sampleReview);
-      alert('✅ Review indexed successfully!');
+      const res = await fetch('/api/arkiv/index-event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          eventType: 'ReviewSubmitted',
+          eventData: sampleReview
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        alert('✅ Review indexed successfully!');
+      } else {
+        alert(`❌ Failed: ${data.error}`);
+      }
     } catch (error) {
       console.error(error);
       alert('❌ Failed to index review');
@@ -154,12 +194,18 @@ export default function ArkivDemoPage() {
   // Query all projects
   const handleQueryProjects = async () => {
     try {
-      const results = await queryEvents({
-        eventType: 'ProjectCreated',
-        limit: 10,
+      const res = await fetch('/api/arkiv/query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'queryEvents',
+          filters: { eventType: 'ProjectCreated', limit: 10 }
+        })
       });
-      setQueryResults(results);
-      console.log('Query results:', results);
+
+      const data = await res.json();
+      setQueryResults(data.data || []);
+      console.log('Query results:', data.data);
     } catch (error) {
       console.error(error);
       alert('❌ Query failed');
@@ -169,13 +215,18 @@ export default function ArkivDemoPage() {
   // Query projects with specific skill
   const handleQueryBySkill = async () => {
     try {
-      const results = await queryEvents({
-        eventType: 'ProjectCreated',
-        skill: 'React',
-        limit: 10,
+      const res = await fetch('/api/arkiv/query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'queryEvents',
+          filters: { eventType: 'ProjectCreated', skill: 'React', limit: 10 }
+        })
       });
-      setQueryResults(results);
-      console.log('React projects:', results);
+
+      const data = await res.json();
+      setQueryResults(data.data || []);
+      console.log('React projects:', data.data);
     } catch (error) {
       console.error(error);
       alert('❌ Query failed');
@@ -187,13 +238,18 @@ export default function ArkivDemoPage() {
     const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
 
     try {
-      const results = await queryEvents({
-        eventType: 'ProjectCreated',
-        startTime: sevenDaysAgo,
-        limit: 10,
+      const res = await fetch('/api/arkiv/query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'queryEvents',
+          filters: { eventType: 'ProjectCreated', startTime: sevenDaysAgo, limit: 10 }
+        })
       });
-      setQueryResults(results);
-      console.log('Projects from last 7 days:', results);
+
+      const data = await res.json();
+      setQueryResults(data.data || []);
+      console.log('Last 7 days:', data.data);
     } catch (error) {
       console.error(error);
       alert('❌ Query failed');
@@ -208,9 +264,18 @@ export default function ArkivDemoPage() {
     }
 
     try {
-      const data = await getStudentAnalytics(studentAddress);
-      setAnalytics(data);
-      console.log('Student analytics:', data);
+      const res = await fetch('/api/arkiv/query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'getAnalytics',
+          filters: { studentAddress }
+        })
+      });
+
+      const data = await res.json();
+      setAnalytics(data.data);
+      console.log('Analytics:', data.data);
     } catch (error) {
       console.error(error);
       alert('❌ Failed to get analytics');
@@ -239,7 +304,7 @@ export default function ArkivDemoPage() {
               <div className="text-sm text-muted-foreground">Total Reviews</div>
             </div>
             <div>
-              <div className="text-3xl font-bold animate-pulse">🔴 LIVE</div>
+              <div className="text-3xl font-bold text-red-500">🔴 LIVE</div>
               <div className="text-sm text-muted-foreground">Real-time Updates</div>
             </div>
             <div>
@@ -356,7 +421,7 @@ export default function ArkivDemoPage() {
                     className="bg-background border rounded p-3 text-sm"
                   >
                     <pre className="whitespace-pre-wrap overflow-x-auto text-xs">
-                      {JSON.stringify(JSON.parse(result.payload), null, 2)}
+                      {JSON.stringify(result, null, 2)}
                     </pre>
                   </div>
                 ))}
@@ -391,25 +456,25 @@ export default function ArkivDemoPage() {
               </div>
               <div className="border rounded-lg p-4">
                 <div className="text-2xl font-bold">
-                  {analytics.averageRating.toFixed(1)}★
+                  {analytics.averageRating?.toFixed(1) || 0}★
                 </div>
                 <div className="text-sm text-muted-foreground">Avg Rating</div>
               </div>
               <div className="border rounded-lg p-4">
                 <div className="text-2xl font-bold">
-                  {analytics.projectsByChain.polkadot}
+                  {analytics.projectsByChain?.polkadot || 0}
                 </div>
                 <div className="text-sm text-muted-foreground">Polkadot Projects</div>
               </div>
               <div className="border rounded-lg p-4">
                 <div className="text-2xl font-bold">
-                  {Object.keys(analytics.skillDistribution).length}
+                  {Object.keys(analytics.skillDistribution || {}).length}
                 </div>
                 <div className="text-sm text-muted-foreground">Unique Skills</div>
               </div>
             </div>
 
-            {Object.keys(analytics.skillDistribution).length > 0 && (
+            {analytics.skillDistribution && Object.keys(analytics.skillDistribution).length > 0 && (
               <div className="mt-4">
                 <h5 className="font-semibold mb-2">Skill Distribution:</h5>
                 <div className="flex flex-wrap gap-2">
@@ -419,7 +484,7 @@ export default function ArkivDemoPage() {
                         key={skill}
                         className="px-2 py-1 bg-primary/10 rounded-full text-xs"
                       >
-                        {skill} ({count})
+                        {skill} ({count as number})
                       </span>
                     )
                   )}
