@@ -7,11 +7,10 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   testArkivConnection,
   getArkivClient,
@@ -33,6 +32,35 @@ export default function ArkivDemoPage() {
   const [queryResults, setQueryResults] = useState<any[]>([]);
   const [analytics, setAnalytics] = useState<any>(null);
   const [studentAddress, setStudentAddress] = useState('');
+  const [liveProjectCount, setLiveProjectCount] = useState(0);
+  const [liveReviewCount, setLiveReviewCount] = useState(0);
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
+
+  // Real-time data refresh (every 15 seconds like learn-arkiv)
+  useEffect(() => {
+    const updateLiveStats = async () => {
+      try {
+        const [projects, reviews] = await Promise.all([
+          queryEvents({ eventType: 'ProjectCreated', limit: 100 }),
+          queryEvents({ eventType: 'ReviewSubmitted', limit: 100 }),
+        ]);
+
+        setLiveProjectCount(projects.length);
+        setLiveReviewCount(reviews.length);
+        setLastUpdate(new Date());
+      } catch (error) {
+        console.error('Failed to update live stats:', error);
+      }
+    };
+
+    // Initial load
+    updateLiveStats();
+
+    // Refresh every 15 seconds
+    const interval = setInterval(updateLiveStats, 15000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Test connection to Arkiv
   const handleTestConnection = async () => {
@@ -197,6 +225,35 @@ export default function ArkivDemoPage() {
           Queryable, time-scoped, verifiable data storage on Arkiv Mendoza
         </p>
       </div>
+
+      {/* Live Stats Banner */}
+      <Card className="mb-6 bg-gradient-to-r from-primary/10 to-primary/5">
+        <CardContent className="pt-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <div className="text-3xl font-bold">{liveProjectCount}</div>
+              <div className="text-sm text-muted-foreground">Total Projects</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold">{liveReviewCount}</div>
+              <div className="text-sm text-muted-foreground">Total Reviews</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold animate-pulse">🔴 LIVE</div>
+              <div className="text-sm text-muted-foreground">Real-time Updates</div>
+            </div>
+            <div>
+              <div className="text-sm font-mono">
+                {lastUpdate ? lastUpdate.toLocaleTimeString() : '--:--:--'}
+              </div>
+              <div className="text-sm text-muted-foreground">Last Refresh</div>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground mt-4">
+            Auto-refreshing every 15 seconds • Powered by Arkiv Mendoza
+          </p>
+        </CardContent>
+      </Card>
 
       {/* Connection Status */}
       <Card className="mb-6">
