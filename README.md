@@ -23,7 +23,8 @@
 - 📄 **Pitch PDF**: [Pitch/DotGo.pdf](./Pitch/DotGo.pdf)
 - 🔗 **Live Demo**: http://localhost:3002 (Base Sepolia + Ethereum Sepolia)
 - 📦 **GitHub Repository**: [https://github.com/MarxMad/Sub0Polk](https://github.com/MarxMad/Sub0Polk)
-- 📝 **Milestone 2 Plan**: [MILESTONE-2-PLAN.md](./MILESTONE-2-PLAN.md)
+- 📝 **30-Day Plan**: [MILESTONE-2-PLAN.md](./MILESTONE-2-PLAN.md)
+- 📋 **Market Research**: [MARKET_CONTEXT.md](./MARKET_CONTEXT.md)
 
 **Deployed Contracts:**
 - Base Sepolia DotGoUSDC: [0xe08e46D72cCAB33F12D1643eA49D3Cb9CC8A0aF3](https://sepolia.basescan.org/address/0xe08e46D72cCAB33F12D1643eA49D3Cb9CC8A0aF3)
@@ -778,6 +779,84 @@ npm start
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🚀 Go-to-Market Strategy
+
+### Target Markets
+
+**Primary Audience**:
+- 🎓 **University students** (computer science, engineering, design)
+- 💻 **Coding bootcamp graduates** (Lambda School, Le Wagon, Platzi)
+- 🌍 **Self-taught developers** in Latin America, Southeast Asia, Africa
+
+**Secondary Audience**:
+- 🏢 **Remote-first companies** hiring junior talent
+- 🤝 **Web3 projects** seeking contributors
+- 🎯 **Freelance platforms** (Upwork, Fiverr) looking for verified portfolios
+
+### Distribution Channels
+
+**Phase 1: Student Acquisition (Month 1-2)**
+- 📱 **Social Media**: Twitter/X threads about "verified Web3 portfolios"
+- 🎓 **University Partnerships**: Buenos Aires tech universities (UBA, UTN)
+- 💬 **Discord Communities**: DevPost, Buildspace, LearnWeb3
+- 📝 **Content Marketing**: Medium articles on "breaking into Web3 as a student"
+
+**Phase 2: Employer/Mentor Acquisition (Month 2-3)**
+- 🔗 **LinkedIn**: Target HR managers, CTOs, Web3 founders
+- 🎤 **Hackathon Sponsorships**: ETHGlobal, Devfolio, sub0
+- 🌐 **Web3 Communities**: Polkadot Forum, Base Ecosystem Discord
+- 📊 **Case Studies**: Success stories of students getting hired via DotGo
+
+**Phase 3: Ecosystem Growth (Month 3-6)**
+- 🏆 **Student Ambassador Program**: Campus representatives earning referral fees
+- 🎁 **Referral Incentives**: Students earn 10% of first unlock fee
+- 🤖 **Twitter Bot**: Daily featured portfolios with #DotGoDaily hashtag
+- 📺 **YouTube Tutorials**: "How to create your first Web3 portfolio on DotGo"
+
+### Growth Metrics & Targets
+
+**90-Day Goals**:
+- ✅ **100 student portfolios** created (Month 1)
+- ✅ **500 total unlocks** (Month 2)
+- ✅ **50 verified reviews** from industry mentors (Month 3)
+- ✅ **5 university partnerships** (Month 3)
+
+**Revenue Model**:
+- 💰 **$1 platform fee** per $5 unlock
+- 📈 **Projected revenue**: 500 unlocks/month = $500/month by Month 2
+- 🎯 **Break-even**: 2,000 unlocks/month = $2,000/month operational costs
+
+### Competitive Advantages
+
+**Why DotGo wins**:
+1. ✅ **Verified reviews** (blockchain-secured, can't be faked)
+2. ✅ **Instant student payouts** (no escrow delays)
+3. ✅ **Cross-chain reputation** (portable across Base, Ethereum, Polkadot)
+4. ✅ **Time-scoped data** (privacy-compliant with Arkiv expiration)
+5. ✅ **SQL-like talent queries** (find "React devs, 4+ stars, last 6 months")
+
+**Versus competitors**:
+- **LinkedIn**: No verified reviews, no blockchain proof
+- **GitHub**: No employer discovery, no monetization
+- **Upwork**: High fees (20%), slow payouts, centralized platform
+
+### Marketing Budget (Post-Hackathon)
+
+**Month 1-3 Budget** (if funded):
+- 🎓 **Student Incentives**: $500 (first 100 portfolios get $5 USDC bonus)
+- 📱 **Social Media Ads**: $300 (Twitter/X, LinkedIn targeting)
+- 🎤 **Event Sponsorships**: $200 (local university hackathons)
+- 📝 **Content Creation**: $0 (team-created blog posts, videos)
+- **Total**: $1,000 bootstrapped marketing budget
+
+**Success Indicators**:
+- 📈 **Viral coefficient**: 1.5+ (each user refers 1.5 new users)
+- ⭐ **Average rating**: 4.2+ stars (quality signal)
+- 🔄 **Repeat unlocks**: 30%+ reviewers unlock 2+ portfolios
+- 💬 **Organic mentions**: 50+ Twitter mentions/month by Month 3
 
 ---
 
