@@ -15,11 +15,12 @@ export function Navbar() {
   const { isConnected: isEthConnected } = useAccount();
   const { isConnected: isPolkadotConnected } = usePolkadot();
 
-  const publicNavLinks = [
+  const publicNavLinks: Array<{ href: string; label: string; badge?: string }> = [
     { href: "/portfolios", label: "Browse Portfolios" },
+    { href: "/arkiv-demo", label: "Arkiv Demo", badge: "$10k" },
   ];
 
-  const privateNavLinks = [
+  const privateNavLinks: Array<{ href: string; label: string; badge?: string }> = [
     { href: "/dashboard", label: "Dashboard" },
     { href: "/profile", label: "Profile" },
   ];
@@ -46,9 +47,14 @@ export function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
               >
                 {link.label}
+                {link.badge && (
+                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                    {link.badge}
+                  </Badge>
+                )}
               </Link>
             ))}
           </div>
