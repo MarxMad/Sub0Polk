@@ -1,22 +1,41 @@
 "use client";
 
-import { use } from "react";
-import { useAccount } from "wagmi";
+import { useState } from "react";
+import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { parseEther } from "viem";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { mockProjects, mockReviews } from "@/lib/mock-data";
-import { Github, ExternalLink, Lock, Unlock, Star, Calendar, User } from "lucide-react";
+import { Github, ExternalLink, Lock, Unlock, Star, Calendar, User, Loader2 } from "lucide-react";
+import { CONTRACT_ADDRESS, CONTRACT_ABI } from "@/lib/contract";
 
-export default function PortfolioDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
-  const { isConnected } = useAccount();
+export default function PortfolioDetailPage({ params }: { params: { id: string } }) {
+  const { id } = params;
+  const { isConnected, address } = useAccount();
+  const [isUnlocked, setIsUnlocked] = useState(false);
+
+  const { writeContract, data: hash, isPending } = useWriteContract();
+  const { isLoading: isConfirming } = useWaitForTransactionReceipt({ hash });
 
   const project = mockProjects.find((p) => p.id === id);
   const reviews = mockReviews[id] || [];
 
-  // Mock unlock status - in real app, check on-chain
-  const isUnlocked = false;
+  const handleUnlock = async () => {
+    if (!isConnected || !address) return;
+
+    try {
+      writeContract({
+        address: CONTRACT_ADDRESS,
+        abi: CONTRACT_ABI,
+        functionName: "unlockProject",
+        args: [BigInt(id)],
+        value: parseEther("3.0"), // 3 tokens
+      });
+    } catch (error) {
+      console.error("Error unlocking project:", error);
+    }
+  };
 
   if (!project) {
     return (
@@ -70,24 +89,37 @@ export default function PortfolioDetailPage({ params }: { params: Promise<{ id: 
                 <span className="font-semibold">Locked Portfolio</span>
               </div>
               <p className="text-sm text-muted-foreground">
-                Pay 3 DOT to unlock full project details, GitHub repo, and demo.
+                Pay 3 ETH to unlock full project details, GitHub repo, and demo.
               </p>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">To Student:</span>
-                  <span className="font-medium">2.5 DOT</span>
+                  <span className="font-medium">2.5 ETH</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Platform Fee:</span>
-                  <span className="font-medium">0.5 DOT</span>
+                  <span className="font-medium">0.5 ETH</span>
                 </div>
                 <div className="pt-2 border-t flex justify-between font-semibold">
                   <span>Total:</span>
-                  <span>3.0 DOT</span>
+                  <span>3.0 ETH</span>
                 </div>
               </div>
-              <Button className="w-full" disabled={!isConnected}>
-                {isConnected ? "Unlock Portfolio (3 DOT)" : "Connect Wallet"}
+              <Button
+                className="w-full"
+                disabled={!isConnected || isPending || isConfirming}
+                onClick={handleUnlock}
+              >
+                {isPending || isConfirming ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {isPending ? "Confirm in wallet..." : "Unlocking..."}
+                  </>
+                ) : isConnected ? (
+                  "Unlock Portfolio (3 ETH)"
+                ) : (
+                  "Connect Wallet"
+                )}
               </Button>
             </CardContent>
           </Card>
@@ -123,7 +155,7 @@ export default function PortfolioDetailPage({ params }: { params: Promise<{ id: 
             <div className="space-y-2">
               <h3 className="text-xl font-semibold">Unlock to View</h3>
               <p className="text-muted-foreground max-w-md mx-auto">
-                Pay 3 DOT to access GitHub repository, live demo, detailed documentation, and the ability to leave a verified review.
+                Pay 3 ETH to access GitHub repository, live demo, detailed documentation, and the ability to leave a verified review.
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
