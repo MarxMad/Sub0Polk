@@ -15,7 +15,8 @@
 
 **Submission Materials:**
 - 🎥 **Pitch Video**: [TBD - Upload to YouTube]
-- 📊 **Pitch Deck**: [TBD - Upload to Google Slides/Canva]
+- 📊 **Pitch Deck**: [https://gamma.app/docs/DotGo-yzsrom5xgm6m2dz](https://gamma.app/docs/DotGo-yzsrom5xgm6m2dz)
+- 📄 **Pitch PDF**: [Pitch/DotGo.pdf](./Pitch/DotGo.pdf)
 - 📹 **Demo Video**: [TBD - Upload to YouTube]
 - 🔗 **Live Demo**: http://localhost:3002 (Base Sepolia + Ethereum Sepolia)
 - 📦 **GitHub Repository**: [https://github.com/yourusername/Sub0Polk](https://github.com/yourusername/Sub0Polk)
