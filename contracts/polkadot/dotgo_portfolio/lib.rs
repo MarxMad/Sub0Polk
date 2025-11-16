@@ -1,6 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-#[ink::contract]
+#[ink::contract(env = ink::env::DefaultEnvironment)]
 mod dotgo_portfolio {
     use ink::prelude::string::String;
     use ink::prelude::vec::Vec;
@@ -10,6 +10,7 @@ mod dotgo_portfolio {
 
     #[derive(Debug, PartialEq, Eq)]
     #[ink::scale_derive(Encode, Decode, TypeInfo)]
+    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
     pub struct Project {
         pub id: u64,
         pub student: AccountId,
@@ -25,6 +26,7 @@ mod dotgo_portfolio {
 
     #[derive(Debug, PartialEq, Eq)]
     #[ink::scale_derive(Encode, Decode, TypeInfo)]
+    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
     pub struct Review {
         pub reviewer: AccountId,
         pub rating: u8,
@@ -141,7 +143,7 @@ mod dotgo_portfolio {
             student_project_ids.push(project_id);
             self.student_projects.insert(student, &student_project_ids);
 
-            self.next_project_id += 1;
+            self.next_project_id = self.next_project_id.saturating_add(1);
 
             self.env().emit_event(ProjectCreated {
                 project_id,
@@ -183,7 +185,7 @@ mod dotgo_portfolio {
 
             // Mark as unlocked
             self.unlocked.insert((project_id, reviewer), &true);
-            project.unlock_count += 1;
+            project.unlock_count = project.unlock_count.saturating_add(1);
             self.projects.insert(project_id, &project);
 
             self.env().emit_event(ProjectUnlocked {
@@ -225,8 +227,11 @@ mod dotgo_portfolio {
 
             // Update average rating
             let mut project = self.projects.get(project_id).ok_or(Error::ProjectNotFound)?;
-            let total_rating: u32 = reviews.iter().map(|r| r.rating as u32).sum();
-            project.avg_rating = (total_rating / reviews.len() as u32) as u8;
+            let total_rating: u32 = reviews.iter().map(|r| u32::from(r.rating)).sum();
+            let review_count: u32 = reviews.len().try_into().unwrap_or(1);
+            project.avg_rating = total_rating.checked_div(review_count)
+                .and_then(|avg| u8::try_from(avg).ok())
+                .unwrap_or(0);
             self.projects.insert(project_id, &project);
 
             self.env().emit_event(ReviewSubmitted {
