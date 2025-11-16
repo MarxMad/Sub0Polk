@@ -77,8 +77,22 @@ export async function getContract(address?: string): Promise<any | null> {
   if (contract) return contract;
 
   const { ContractPromise } = await import('@polkadot/api-contract');
-  const CONTRACT_METADATA = await import('../contracts/dotgo_portfolio.json');
+  
+  // Load contract metadata (placeholder if not deployed)
+  let CONTRACT_METADATA;
+  try {
+    CONTRACT_METADATA = await import('../contracts/dotgo_portfolio.json');
+  } catch (err) {
+    console.warn('Contract metadata not found. Using empty metadata.');
+    CONTRACT_METADATA = { contract: { name: 'DotGoPortfolio', version: '0.1.0' } };
+  }
+  
   const apiInstance = await initPolkadotApi();
+  if (!apiInstance) {
+    console.warn('Polkadot API not initialized');
+    return null;
+  }
+  
   contract = new ContractPromise(apiInstance, CONTRACT_METADATA, address || CONTRACT_ADDRESS);
 
   return contract;

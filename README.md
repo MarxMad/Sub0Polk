@@ -14,6 +14,8 @@
 - Gerardo Vela - Full-Stack Developer
 - Fernanda Tello - Economist & Project Manager
 - Nayeli Chavez - Computer Engineer
+- Giovani Amador - Fullstack
+- Montserrat Smith - Business Developer
 
 **Tracks:** Arkiv Main Track + Hyperbridge Bounty
 
@@ -747,6 +749,8 @@ npm start
 - **Gerardo Vela** - Full-Stack Developer
 - **Fernanda Tello** - Economist & Project Manager
 - **Nayeli Chavez** - Computer Engineer
+- **Giovani Amador** - Fullstack
+- **Montserrat Smith** - Business Developer
 
 **Technical Stack**:
 - Smart Contracts & Backend: Solidity + Arkiv SDK + Hyperbridge
