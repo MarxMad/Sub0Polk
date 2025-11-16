@@ -32,24 +32,8 @@ export function PolkadotProvider({ children }: { children: ReactNode }) {
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Initialize API on mount
+  // Cleanup on unmount
   useEffect(() => {
-    if (typeof window === 'undefined') return; // SSR guard
-
-    const init = async () => {
-      try {
-        const apiInstance = await initPolkadotApi(DEFAULT_NETWORK.rpc);
-        if (apiInstance) {
-          setApi(apiInstance);
-        }
-      } catch (err) {
-        console.error('Failed to initialize Polkadot API:', err);
-        setError('Failed to connect to Polkadot network');
-      }
-    };
-
-    init();
-
     return () => {
       disconnectPolkadot();
     };
@@ -60,11 +44,27 @@ export function PolkadotProvider({ children }: { children: ReactNode }) {
     setError(null);
 
     try {
+      // Connect wallet first (don't wait for API)
       const { accounts: walletAccounts, selectedAccount: defaultAccount } = await connectPolkadotWallet();
 
       setAccounts(walletAccounts);
       setSelectedAccount(defaultAccount);
       setIsConnected(true);
+
+      // Initialize API in background (non-blocking)
+      if (!api) {
+        initPolkadotApi(DEFAULT_NETWORK.rpc)
+          .then((apiInstance) => {
+            if (apiInstance) {
+              setApi(apiInstance);
+              console.log('✅ Polkadot API connected');
+            }
+          })
+          .catch((err) => {
+            console.warn('⚠️ Polkadot RPC connection failed (wallet still works):', err);
+            // Wallet connection still works even if RPC fails
+          });
+      }
     } catch (err: any) {
       console.error('Failed to connect wallet:', err);
       setError(err.message || 'Failed to connect wallet');
