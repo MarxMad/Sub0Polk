@@ -1,4 +1,4 @@
-#![cfg_attr(not(feature = "std"), no_std, no_main)]
+ls#![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::contract(env = ink::env::DefaultEnvironment)]
 mod dotgo_portfolio {
