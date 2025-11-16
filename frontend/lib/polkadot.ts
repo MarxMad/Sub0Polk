@@ -1,8 +1,14 @@
 // Network configuration
 export const POLKADOT_NETWORKS = {
+  westend: {
+    name: 'Westend Asset Hub',
+    rpc: 'wss://westend-asset-hub-rpc.polkadot.io',
+    chainId: 'westend-asset-hub',
+  },
   rococo: {
     name: 'Contracts on Rococo',
     rpc: 'wss://rococo-contracts-rpc.polkadot.io',
+    fallbackRpc: 'wss://rococo-contracts.api.onfinality.io/public-ws',
     chainId: 'rococo-contracts',
   },
   local: {
@@ -12,7 +18,8 @@ export const POLKADOT_NETWORKS = {
   },
 };
 
-export const DEFAULT_NETWORK = POLKADOT_NETWORKS.rococo;
+// Use Westend as default since Rococo Contracts RPC appears to be down
+export const DEFAULT_NETWORK = POLKADOT_NETWORKS.westend;
 
 // Contract configuration (update after deployment)
 export const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_POLKADOT_CONTRACT_ADDRESS || '';
@@ -21,17 +28,30 @@ let api: any = null;
 let contract: any = null;
 
 /**
- * Initialize Polkadot API connection
+ * Initialize Polkadot API connection with automatic fallback
  */
 export async function initPolkadotApi(rpcUrl: string = DEFAULT_NETWORK.rpc): Promise<any> {
   if (typeof window === 'undefined') return null; // SSR guard
   if (api) return api;
 
   const { ApiPromise, WsProvider } = await import('@polkadot/api');
-  const provider = new WsProvider(rpcUrl);
-  api = await ApiPromise.create({ provider });
 
-  return api;
+  try {
+    const provider = new WsProvider(rpcUrl, 3000); // 3s timeout
+    api = await ApiPromise.create({ provider });
+    return api;
+  } catch (err) {
+    console.error(`Failed to connect to ${rpcUrl}, trying fallback...`, err);
+
+    // Try fallback if available
+    if (DEFAULT_NETWORK.fallbackRpc && rpcUrl !== DEFAULT_NETWORK.fallbackRpc) {
+      const fallbackProvider = new WsProvider(DEFAULT_NETWORK.fallbackRpc, 3000);
+      api = await ApiPromise.create({ provider: fallbackProvider });
+      return api;
+    }
+
+    throw err;
+  }
 }
 
 /**
