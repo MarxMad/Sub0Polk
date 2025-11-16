@@ -2,315 +2,103 @@
 
 #[ink::contract]
 mod dotgo_portfolio {
-    use ink::prelude::string::String;
-    use ink::prelude::vec::Vec;
-    use ink::storage::Mapping;
 
-    // ==================== DATA STRUCTURES ====================
-
-    #[ink::storage_item(packed)]
-    #[derive(Clone, Debug, PartialEq)]
-    pub struct Project {
-        pub id: u64,
-        pub student: AccountId,
-        pub title: String,
-        pub description: String,
-        pub github_url: String,
-        pub demo_url: String,
-        pub skills: Vec<String>,
-        pub created_at: Timestamp,
-        pub unlock_count: u32,
-        pub avg_rating: u8,
-    }
-
-    #[ink::storage_item(packed)]
-    #[derive(Clone, Debug, PartialEq)]
-    pub struct Review {
-        pub reviewer: AccountId,
-        pub rating: u8,
-        pub comment: String,
-        pub timestamp: Timestamp,
-    }
-
-    #[ink(event)]
-    pub struct ProjectCreated {
-        #[ink(topic)]
-        project_id: u64,
-        #[ink(topic)]
-        student: AccountId,
-        title: String,
-    }
-
-    #[ink(event)]
-    pub struct ProjectUnlocked {
-        #[ink(topic)]
-        project_id: u64,
-        #[ink(topic)]
-        reviewer: AccountId,
-        amount_paid: Balance,
-    }
-
-    #[ink(event)]
-    pub struct ReviewSubmitted {
-        #[ink(topic)]
-        project_id: u64,
-        #[ink(topic)]
-        reviewer: AccountId,
-        rating: u8,
-    }
-
-    // ==================== STORAGE ====================
-
+    /// Defines the storage of your contract.
+    /// Add new fields to the below struct in order
+    /// to add new static storage fields to your contract.
     #[ink(storage)]
     pub struct DotgoPortfolio {
-        next_project_id: u64,
-        projects: Mapping<u64, Project>,
-        student_projects: Mapping<AccountId, Vec<u64>>,
-        unlocked: Mapping<(u64, AccountId), bool>,
-        reviews: Mapping<u64, Vec<Review>>,
-        unlock_price: Balance,
-        student_share: Balance,
-        platform_share: Balance,
-        platform_treasury: AccountId,
+        /// Stores a single `bool` value on the storage.
+        value: bool,
     }
-
-    // ==================== ERRORS ====================
-
-    #[derive(Debug, PartialEq, Eq)]
-    #[ink::scale_derive(Encode, Decode, TypeInfo)]
-    pub enum Error {
-        ProjectNotFound,
-        NotUnlocked,
-        AlreadyUnlocked,
-        InsufficientPayment,
-        CannotReviewOwnProject,
-        InvalidRating,
-        TransferFailed,
-    }
-
-    pub type Result<T> = core::result::Result<T, Error>;
-
-    // ==================== IMPLEMENTATION ====================
 
     impl DotgoPortfolio {
+        /// Constructor that initializes the `bool` value to the given `init_value`.
         #[ink(constructor)]
-        pub fn new(platform_treasury: AccountId) -> Self {
-            Self {
-                next_project_id: 0,
-                projects: Mapping::default(),
-                student_projects: Mapping::default(),
-                unlocked: Mapping::default(),
-                reviews: Mapping::default(),
-                unlock_price: 3_000_000_000_000, // 3 DOT
-                student_share: 2_500_000_000_000, // 2.5 DOT
-                platform_share: 500_000_000_000,   // 0.5 DOT
-                platform_treasury,
-            }
+        pub fn new(init_value: bool) -> Self {
+            Self { value: init_value }
         }
 
+        /// A message that can be called on instantiated contracts.
+        /// This one flips the value of the stored `bool` from `true`
+        /// to `false` and vice versa.
         #[ink(message)]
-        pub fn create_project(
-            &mut self,
-            title: String,
-            description: String,
-            github_url: String,
-            demo_url: String,
-            skills: Vec<String>,
-        ) -> u64 {
-            let project_id = self.next_project_id;
-            let student = self.env().caller();
-
-            let project = Project {
-                id: project_id,
-                student,
-                title: title.clone(),
-                description,
-                github_url,
-                demo_url,
-                skills,
-                created_at: self.env().block_timestamp(),
-                unlock_count: 0,
-                avg_rating: 0,
-            };
-
-            self.projects.insert(project_id, &project);
-
-            let mut student_project_ids = self.student_projects.get(student).unwrap_or_default();
-            student_project_ids.push(project_id);
-            self.student_projects.insert(student, &student_project_ids);
-
-            self.next_project_id += 1;
-
-            self.env().emit_event(ProjectCreated {
-                project_id,
-                student,
-                title,
-            });
-
-            project_id
+        pub fn flip(&mut self) {
+            self.value = !self.value;
         }
 
-        #[ink(message, payable)]
-        pub fn unlock_project(&mut self, project_id: u64) -> Result<()> {
-            let reviewer = self.env().caller();
-            let payment = self.env().transferred_value();
-
-            let mut project = self.projects.get(project_id).ok_or(Error::ProjectNotFound)?;
-
-            if project.student == reviewer {
-                return Err(Error::CannotReviewOwnProject);
-            }
-
-            if self.unlocked.get((project_id, reviewer)).unwrap_or(false) {
-                return Err(Error::AlreadyUnlocked);
-            }
-
-            if payment < self.unlock_price {
-                return Err(Error::InsufficientPayment);
-            }
-
-            // Transfer student share
-            if self.env().transfer(project.student, self.student_share).is_err() {
-                return Err(Error::TransferFailed);
-            }
-
-            // Transfer platform share
-            if self.env().transfer(self.platform_treasury, self.platform_share).is_err() {
-                return Err(Error::TransferFailed);
-            }
-
-            // Mark as unlocked
-            self.unlocked.insert((project_id, reviewer), &true);
-            project.unlock_count += 1;
-            self.projects.insert(project_id, &project);
-
-            self.env().emit_event(ProjectUnlocked {
-                project_id,
-                reviewer,
-                amount_paid: payment,
-            });
-
-            Ok(())
-        }
-
+        /// Simply returns the current value of our `bool`.
         #[ink(message)]
-        pub fn submit_review(
-            &mut self,
-            project_id: u64,
-            rating: u8,
-            comment: String,
-        ) -> Result<()> {
-            let reviewer = self.env().caller();
-
-            if !self.unlocked.get((project_id, reviewer)).unwrap_or(false) {
-                return Err(Error::NotUnlocked);
-            }
-
-            if rating == 0 || rating > 5 {
-                return Err(Error::InvalidRating);
-            }
-
-            let review = Review {
-                reviewer,
-                rating,
-                comment,
-                timestamp: self.env().block_timestamp(),
-            };
-
-            let mut reviews = self.reviews.get(project_id).unwrap_or_default();
-            reviews.push(review);
-            self.reviews.insert(project_id, &reviews);
-
-            // Update average rating
-            let mut project = self.projects.get(project_id).ok_or(Error::ProjectNotFound)?;
-            let total_rating: u32 = reviews.iter().map(|r| r.rating as u32).sum();
-            project.avg_rating = (total_rating / reviews.len() as u32) as u8;
-            self.projects.insert(project_id, &project);
-
-            self.env().emit_event(ReviewSubmitted {
-                project_id,
-                reviewer,
-                rating,
-            });
-
-            Ok(())
-        }
-
-        #[ink(message)]
-        pub fn get_project(&self, project_id: u64) -> Option<Project> {
-            self.projects.get(project_id)
-        }
-
-        #[ink(message)]
-        pub fn get_student_projects(&self, student: AccountId) -> Vec<u64> {
-            self.student_projects.get(student).unwrap_or_default()
-        }
-
-        #[ink(message)]
-        pub fn get_reviews(&self, project_id: u64) -> Vec<Review> {
-            self.reviews.get(project_id).unwrap_or_default()
-        }
-
-        #[ink(message)]
-        pub fn is_unlocked(&self, project_id: u64, reviewer: AccountId) -> bool {
-            self.unlocked.get((project_id, reviewer)).unwrap_or(false)
-        }
-
-        #[ink(message)]
-        pub fn get_unlock_price(&self) -> Balance {
-            self.unlock_price
+        pub fn get(&self) -> bool {
+            self.value
         }
     }
 
-    // ==================== TESTS ====================
-
+    /// Unit tests in Rust are normally defined within such a `#[cfg(test)]`
+    /// module and test functions are marked with a `#[test]` attribute.
+    /// The below code is technically just normal Rust code.
     #[cfg(test)]
     mod tests {
+        /// Imports all the definitions from the outer scope so we can use them here.
         use super::*;
 
+        /// We test a simple use case of our contract.
         #[ink::test]
-        fn create_project_works() {
-            let accounts = ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
-            let mut contract = DotgoPortfolio::new(accounts.alice);
-
-            let project_id = contract.create_project(
-                String::from("My Portfolio"),
-                String::from("A cool project"),
-                String::from("https://github.com/user/repo"),
-                String::from("https://demo.com"),
-                vec![String::from("Rust"), String::from("React")],
-            );
-
-            assert_eq!(project_id, 0);
-            assert!(contract.get_project(project_id).is_some());
+        fn it_works() {
+            let mut dotgo_portfolio = DotgoPortfolio::new(false);
+            assert_eq!(dotgo_portfolio.get(), false);
+            dotgo_portfolio.flip();
+            assert_eq!(dotgo_portfolio.get(), true);
         }
+    }
 
-        #[ink::test]
-        fn unlock_and_review_works() {
-            let accounts = ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
-            let mut contract = DotgoPortfolio::new(accounts.alice);
 
-            let project_id = contract.create_project(
-                String::from("My Portfolio"),
-                String::from("A cool project"),
-                String::from("https://github.com/user/repo"),
-                String::from("https://demo.com"),
-                vec![String::from("Rust")],
-            );
+    /// This is how you'd write end-to-end (E2E) or integration tests for ink! contracts.
+    ///
+    /// When running these you need to make sure that you:
+    /// - Compile the tests with the `e2e-tests` feature flag enabled (`--features e2e-tests`)
+    /// - Are running a Substrate node which contains `pallet-contracts` in the background
+    #[cfg(all(test, feature = "e2e-tests"))]
+    mod e2e_tests {
+        /// Imports all the definitions from the outer scope so we can use them here.
+        use super::*;
 
-            // Switch to Bob (reviewer)
-            ink::env::test::set_caller::<ink::env::DefaultEnvironment>(accounts.bob);
-            ink::env::test::set_value_transferred::<ink::env::DefaultEnvironment>(3_000_000_000_000);
+        /// A helper function used for calling contract messages.
+        use ink_e2e::ContractsBackend;
 
-            let result = contract.unlock_project(project_id);
-            assert!(result.is_ok());
+        /// The End-to-End test `Result` type.
+        type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-            let review_result = contract.submit_review(project_id, 5, String::from("Great!"));
-            assert!(review_result.is_ok());
+        /// We test that we can read and write a value from the on-chain contract.
+        #[ink_e2e::test]
+        async fn it_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+            // Given
+            let mut constructor = DotgoPortfolioRef::new(false);
+            let contract = client
+                .instantiate("dotgo_portfolio", &ink_e2e::bob(), &mut constructor)
+                .submit()
+                .await
+                .expect("instantiate failed");
+            let mut call_builder = contract.call_builder::<DotgoPortfolio>();
 
-            let reviews = contract.get_reviews(project_id);
-            assert_eq!(reviews.len(), 1);
-            assert_eq!(reviews[0].rating, 5);
+            let get = call_builder.get();
+            let get_result = client.call(&ink_e2e::bob(), &get).dry_run().await?;
+            assert!(matches!(get_result.return_value(), false));
+
+            // When
+            let flip = call_builder.flip();
+            let _flip_result = client
+                .call(&ink_e2e::bob(), &flip)
+                .submit()
+                .await
+                .expect("flip failed");
+
+            // Then
+            let get = call_builder.get();
+            let get_result = client.call(&ink_e2e::bob(), &get).dry_run().await?;
+            assert!(matches!(get_result.return_value(), true));
+
+            Ok(())
         }
     }
 }
